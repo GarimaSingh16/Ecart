@@ -1,4 +1,6 @@
+from carts.views import _cart_id
 from .models import Category
+from carts.models import Cart,CartItem
 
 def menu_links(request):
     links = Category.objects.all()
@@ -15,3 +17,8 @@ def menu_links(request):
 # and mention function name we have just created like -> 'category.context_processors.menu_links'
 
 # The reason of doing this is that 'menu_links' function will be available to use in any templates/app we wantincluding the main project.
+
+def total_items(request):
+    cart = Cart.objects.get(cart_id = _cart_id(request))
+    items = CartItem.objects.filter(cart=cart,is_active = True)
+    return dict(items = items)

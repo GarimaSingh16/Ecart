@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.home,name='home'),
     # path('accounts/',include('accounts.urls')),
-    # path('category/',include('category.urls')),
+    path('cart/',include('carts.urls')),
     path('store/',include('store.urls')),
     
     

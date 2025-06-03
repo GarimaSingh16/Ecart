@@ -13,4 +13,14 @@ class UserAdmin(UserAdmin):
 admin.site.register(UserAdmin)
 ```
 - #### name should be like : model_name + 'Admin'
+
+## {{i.variation_value | lower}}
+
+- here after pipe lower is used which will convert the value into lowercase
+
+## {{ i.variation_value | capfirst }} 
+
+- here makes first letter capital
     
+##  {{i.variation_value | title}}
+- it makes first letter of every word capital (title case)
