@@ -29,7 +29,7 @@ def total_items(request):
             # Just write total_items in place of total_items.count in base.html
                 
             
-        except Cart.ObjectDoesNotExist:
+        except Cart.DoesNotExist:
             total_items = 0
     return dict(total_items = total_items)
          

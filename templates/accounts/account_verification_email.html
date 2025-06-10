@@ -1,0 +1,15 @@
+{% comment %} <!-- This is for sending mail for verification --> {% endcomment %}
+{% csrf_token %}
+{% autoescape off %}
+{% comment %} autoescape provide cross site scripting protection and you can read more about it. It is good for sending mails{% endcomment %}
+
+Hi {{user.first_name}},
+
+Please click on below link to confirm your registration.
+http://{{domain}}{% url 'activate' uidb64=uid token=token %}
+
+{% comment %} here the token will get expire after a single use or after some time {% endcomment %}
+
+If you think it's not you, please ignore this email.
+
+{% endautoescape %}

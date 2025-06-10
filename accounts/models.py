@@ -48,6 +48,7 @@ class UserManager(BaseUserManager):
         )
         
         user.is_admin = True
+        user.is_active = True
         user.save(using=self._db)
         return user
 
@@ -58,10 +59,11 @@ class User(AbstractBaseUser):
     
     first_name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=60)
-    email = models.EmailField(unique=True)
     username = models.CharField(max_length=250,unique=True)
     phone_number = models.CharField(max_length=10)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

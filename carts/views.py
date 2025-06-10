@@ -13,7 +13,7 @@ def cart(request):
         total_amount = 0
         for cart_item in cart_items:
             total_amount += cart_item.product.price * cart_item.quantity 
-        tax = int(total_amount * 0.12)
+        tax = int(total_amount * 0.02)
     except ObjectDoesNotExist:
         pass
     return render(request,'store/cart.html',{'cart_items':cart_items,'total_amount':total_amount,'tax':tax})

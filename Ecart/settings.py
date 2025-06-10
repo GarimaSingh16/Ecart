@@ -139,3 +139,25 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.User'
+
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Custom message tags for bootstrap alerts
+
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'debug',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger',  # map 'error' to 'danger' for Bootstrap compatibility
+}
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# SMTP Configuration for sending mails
+EMAIL_HOST = 'smtp.gmail.com'
+EMIAL_PORT = 587    # from gmail port=587
+EMAIL_HOST_USER = 'garimasinghgautam28@gmail.com'
+EMAIL_HOST_PASSWORD = 'rpyw zsjh qmvk vkzv'
+EMAIL_USE_TLS = True

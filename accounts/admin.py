@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 # Register your models here.
 
 class UserAdmin(BaseUserAdmin):
-    list_display = ['email','first_name','last_name','username']
+    list_display = ['email','first_name','last_name','username','is_active']
     
     list_display_links = ['email','first_name','username']
     
@@ -27,6 +27,7 @@ class UserAdmin(BaseUserAdmin):
             # }),
         # )
         # Here 'fields': will not change or we can not use any other name , here 'fields' is a key in which different fields will be given as values.
+
         
 
 
