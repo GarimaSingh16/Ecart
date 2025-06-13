@@ -11,8 +11,14 @@ def total_items(request):
         try:
             
             # It will show the total_number of items present in cart irrespective of their quantity
-            cart = Cart.objects.get(cart_id = _cart_id(request))
-            total_items = CartItem.objects.filter(cart=cart,is_active = True)
+            
+            if request.user.is_authenticated:
+                total_items = CartItem.objects.filter(user=request.user,is_active=True)
+            
+            else:
+                cart = Cart.objects.get(cart_id = _cart_id(request))
+                
+                total_items = CartItem.objects.filter(cart=cart,is_active = True)
             
             # OR
             

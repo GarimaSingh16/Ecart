@@ -14,6 +14,10 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 
+from carts.views import _cart_id
+from carts.models import Cart,CartItem
+import requests
+
 # Create your views here.
 
 def register(request):    
@@ -91,11 +95,77 @@ def login(request):
         user = auth.authenticate(email=email,password=password)
         
         if user :
+            
+            try:
+                
+                cart = Cart.objects.get(cart_id=_cart_id(request))
+                is_cart_items_exists = CartItem.objects.filter(cart=cart).exists()
+                print(is_cart_items_exists)
+                
+                if is_cart_items_exists:
+                    cart_items = CartItem.objects.filter(cart=cart)
+                
+                # ++++++++++++ Getting the product variation by cart id ++++++++++++++++
+                    product_variation = []
+                    for cart_item in cart_items:
+                        variation = cart_item.variation.all()
+                        
+                        product_variation.append(list(variation))
+                        
+                        
+                # ++++++++++++++ Get the cart items from the user to access his product variation ++++++++++++++++++++++++++++
+                    cart_items = CartItem.objects.filter(user=user)
+                    ex_var_list = []
+                    id=[]
+                    for cart_item in cart_items:
+                        existing_variation = cart_item.variation.all()
+                        ex_var_list.append(list(existing_variation))
+                        id.append(cart_item.id)
+                        
+                        
+                    # product_variation = [1,2,3,4,5,6]
+                    # ex_var_list =  [6,3,2]
+                    
+                    for pr in product_variation:
+                        if pr in ex_var_list:
+                            index = ex_var_list.index(pr)
+                            item_id = id[index]
+                            cart_item = CartItem.objects.get(id=item_id)   
+                            cart_item.quantity += 1
+                            cart_item.user = user
+                            cart_item.save() 
+                        else:
+                            cart_items = CartItem.objects.filter(cart=cart)
+                            for cart_item in cart_items:
+                                cart_item.user = user
+                                cart_item.save()
+
+            except:
+                print('entering inside except block')
+                pass
+            
             auth.login(request,user)
             
             messages.success(request,'Welcome back, hope you are doing great. Enjoy shopping... ')
             
-            return redirect('home')
+            # it will grab the previous url from where we had came
+            url = request.META.get('HTTP_REFERER')
+            
+            try:
+                query = requests.utils.urlparse(url).query
+                print("query:",query)
+                print('++++++++++++++++++++++++++++')
+                params = dict(
+                    x.split('=') for x in query.split('&')
+                )
+                print("params",params)
+                
+                if 'next' in params:
+                    nextPage = params['next']
+                    return redirect(nextPage)            
+             
+            except:
+                return redirect('dashboard')
                         
         else:
             messages.error(request,'Please Enter Valid Data')

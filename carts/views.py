@@ -3,22 +3,9 @@ from django.shortcuts import redirect, render
 from store.models import Product,Variation
 from .models import Cart,CartItem
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
-
-def cart(request):
-    try :
-        cart = Cart.objects.get(cart_id = _cart_id(request))
-        cart_items = CartItem.objects.filter(cart=cart,is_active = True)
-        total_amount = 0
-        for cart_item in cart_items:
-            total_amount += cart_item.product.price * cart_item.quantity 
-        tax = int(total_amount * 0.02)
-    except ObjectDoesNotExist:
-        pass
-    return render(request,'store/cart.html',{'cart_items':cart_items,'total_amount':total_amount,'tax':tax})
-
-
 
 # this is a private function as there is underscore(_) before the function name. Remember wherever we want to access this function we need to use the underscore before is as it is written while making it private.
 
@@ -36,8 +23,45 @@ def _cart_id(request):
 
 
 
+def cart(request,total_amount=0,cart_items=None,tax=0):
+    try :
+        
+        
+        if request.user.is_authenticated :
+            is_cart_item_exists = CartItem.objects.filter(user=request.user).exists()
+            if is_cart_item_exists:
+                cart_items = CartItem.objects.filter(user=request.user,is_active=True)
+            else:
+                cart_items = CartItem.objects.filter(cart=cart,is_active = True)
+                
+        else:
+            cart = Cart.objects.get(cart_id = _cart_id(request))
+        # print(cart)
+            
+            cart_items = CartItem.objects.filter(cart=cart,is_active = True)
+            print(cart_items)
+        # total_amount = 0
+        for cart_item in cart_items:
+            total_amount += cart_item.product.price * cart_item.quantity 
+        tax = int(total_amount * 0.02)
+    except ObjectDoesNotExist:
+        pass    
+    except Exception as e:
+        print(e)
+    
+    context={
+        'cart_items':cart_items,
+        'total_amount':total_amount,
+        'tax':tax
+        }
+    return render(request,'store/cart.html',context)
+        
+
+
 def add_cart(request,product_id):
     product = Product.objects.get(id=product_id)
+    
+    current_user=request.user
     
     # with the help of this we will store its values in CartItem model in models.py of Cart
     product_variation = []
@@ -71,21 +95,27 @@ def add_cart(request,product_id):
                 # print(e)
                 pass
     try :
-        cart = Cart.objects.get(cart_id = _cart_id(request))  # get the cart using the cart_id present in the session by using _cart_id() method which is a private method. 
+        cart = Cart.objects.get(cart_id = _cart_id(request))  # get the cart using the cart_id present in the session by using _cart_id() method which is a private method.
         
     except Cart.DoesNotExist:
         cart = Cart.objects.create(
             cart_id = _cart_id(request)
         )
+    print(cart) 
+    
     cart.save()
     
     is_cart_item_exists = CartItem.objects.filter(product = product,cart=cart).exists()
     
-    if product.stock > 0 and is_cart_item_exists:
+    if product.stock > 0 or is_cart_item_exists:
         
        
             # if any product present in the cart then it will increase the quantity by 1.
-                cart_items = CartItem.objects.filter(product = product,cart=cart)
+            
+                if current_user.is_authenticated:
+                    cart_items = CartItem.objects.filter(product=product,user=current_user)
+                else:
+                    cart_items = CartItem.objects.filter(product = product,cart=cart)
                 
                 # existing variations -> will come from database
                 # current variation -> product_variation list
@@ -112,16 +142,28 @@ def add_cart(request,product_id):
                     # save item or add item to database
                     
                 else:
-                    cart_item = CartItem.objects.create(
-                    product = product,
-                    quantity = 1,
-                    cart=cart
-                    )
+                    
+                    if current_user.is_authenticated:
+                        cart_item = CartItem.objects.create(
+                        product = product,
+                        quantity = 1,
+                        cart=cart,
+                        user=current_user
+                        )
+                        
+                    else:
+                        cart_item = CartItem.objects.create(
+                        product = product,
+                        quantity = 1,
+                        cart=cart,
+
+                        )
                     if len(product_variation ) > 0:
                         cart_item.variation.clear()
                         cart_item.variation.add(*product_variation)
                         # *product_variation will split the items and then work upon it.
                     cart_item.save()
+                        
                 return redirect('cart')    
                 
     else:
@@ -130,37 +172,71 @@ def add_cart(request,product_id):
 def subt_cart(request,product_id,cart_item_id):
     product = Product.objects.get(id=product_id)
     
-    try :
-        cart = Cart.objects.get(cart_id = _cart_id(request))  # get the cart using the cart_id present in the session by using _cart_id() method which is a private method. 
-        
-    except Cart.DoesNotExist:
-        cart = Cart.objects.delete(
-            cart_id = _cart_id(request)
-        )
-    cart.save()
-    # if any product present in the cart then it will decrease the quantity by 1.
-    
-    
-    
     try:
-        cart_item = CartItem.objects.get(product = product,cart=cart,id=cart_item_id )
+        if request.user.is_authenticated:
+            is_cart_item_exists = CartItem.objects.filter(product = product,user=request.user,id=cart_item_id).exists()
+            if is_cart_item_exists:
+                cart_item = CartItem.objects.get(product = product,user=request.user,id=cart_item_id )
+                
+        else:
+            try :
+                cart = Cart.objects.get(cart_id = _cart_id(request))  # get the cart using the cart_id present in the session by using _cart_id() method which is a private method. 
+                
+            except Cart.DoesNotExist:
+                cart = Cart.objects.delete(
+                    cart_id = _cart_id(request)
+                )
+            cart.save()
+    # if any product present in the cart then it will decrease the quantity by 1.
+            cart_item = CartItem.objects.get(product = product,cart=cart,id=cart_item_id )
         cart_item.quantity -=1
         cart_item.save()
         # save item or add item to database
         
-    except:
+    except ObjectDoesNotExist:
         pass
     return redirect('cart') 
 
 def remove_cart(request,product_id,cart_items_id):
     product = Product.objects.get(id=product_id)
     
-    cart = Cart.objects.get(cart_id = _cart_id(request))  # get the cart using the cart_id present in the session by using _cart_id() method which is a private method. 
     try:
-        cart_item = CartItem.objects.get(product = product,cart=cart,id=cart_items_id)
+        if request.user.is_authenticated:
+            is_cart_item_exists = CartItem.objects.filter(product = product,user=request.user,id=cart_items_id).exists()
+            if is_cart_item_exists:
+                cart_item = CartItem.objects.get(product = product,user=request.user,id=cart_items_id)
+   
+        else:
+            cart = Cart.objects.get(cart_id = _cart_id(request))  # get the cart using the cart_id present in the session by using _cart_id() method which is a private method. 
+            
+            cart_item = CartItem.objects.get(product = product,cart=cart,id=cart_items_id)
         cart_item.delete()
 
         # save item or add item to database
         return redirect('cart')
-    except:
+    except ObjectDoesNotExist:
         pass
+
+@login_required(login_url='login')    
+def checkout(request,total_amount=0,cart_items=None,tax=0):
+    
+    try :
+        # cart = Cart.objects.get(cart_id = _cart_id(request))
+        # print(cart)
+        cart_items = CartItem.objects.filter(user=request.user,is_active = True)
+        # total_amount = 0
+        for cart_item in cart_items:
+            total_amount += cart_item.product.price * cart_item.quantity 
+        tax = int(total_amount * 0.02)
+        
+    except ObjectDoesNotExist:
+        pass
+    except Exception as e:
+        print(e)
+    
+    context={
+        'cart_items':cart_items,
+        'total_amount':total_amount,
+        'tax':tax
+    }
+    return render(request,'store/checkout.html',context)
