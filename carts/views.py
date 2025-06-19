@@ -24,8 +24,8 @@ def _cart_id(request):
 
 
 def cart(request,total_amount=0,cart_items=None,tax=0):
-    try :
-        
+    grand_total=0
+    try :    
         
         if request.user.is_authenticated :
             is_cart_item_exists = CartItem.objects.filter(user=request.user).exists()
@@ -43,7 +43,8 @@ def cart(request,total_amount=0,cart_items=None,tax=0):
         # total_amount = 0
         for cart_item in cart_items:
             total_amount += cart_item.product.price * cart_item.quantity 
-        tax = int(total_amount * 0.02)
+        tax = total_amount * 0.02
+        grand_total = total_amount+tax
     except ObjectDoesNotExist:
         pass    
     except Exception as e:
@@ -52,7 +53,8 @@ def cart(request,total_amount=0,cart_items=None,tax=0):
     context={
         'cart_items':cart_items,
         'total_amount':total_amount,
-        'tax':tax
+        'tax':tax,
+        'grand_total':grand_total
         }
     return render(request,'store/cart.html',context)
         
@@ -219,7 +221,7 @@ def remove_cart(request,product_id,cart_items_id):
 
 @login_required(login_url='login')    
 def checkout(request,total_amount=0,cart_items=None,tax=0):
-    
+    grand_total = 0
     try :
         # cart = Cart.objects.get(cart_id = _cart_id(request))
         # print(cart)
@@ -227,7 +229,8 @@ def checkout(request,total_amount=0,cart_items=None,tax=0):
         # total_amount = 0
         for cart_item in cart_items:
             total_amount += cart_item.product.price * cart_item.quantity 
-        tax = int(total_amount * 0.02)
+        tax = total_amount * 0.02
+        grand_total = total_amount+tax
         
     except ObjectDoesNotExist:
         pass
@@ -237,6 +240,7 @@ def checkout(request,total_amount=0,cart_items=None,tax=0):
     context={
         'cart_items':cart_items,
         'total_amount':total_amount,
-        'tax':tax
+        'tax':tax,
+        'grand_total':grand_total
     }
     return render(request,'store/checkout.html',context)

@@ -1,5 +1,4 @@
 from django import forms
-from pydantic import ValidationError
 from .models import User
 
 class RegistrationForm(forms.ModelForm):

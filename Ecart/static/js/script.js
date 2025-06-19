@@ -73,5 +73,10 @@ setTimeout( function ()
 {
     $( '#message' ).fadeOut( 'slow' );
     // slow is the disaperaing style
-}, 3000 )
+}, 3000 );
 
+$( 'form' ).submit( function ( e )
+{
+    e.preventDefault();
+    // custom handling that doesn't include POST
+} );

@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # loads the .env file into os.environ
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,8 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-38ccl!1dz3d1qzi1zyaw821q2-xuqh3(t3mkqg^2x#$5tyvhwv'
-
+SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -41,6 +46,7 @@ INSTALLED_APPS = [
     'accounts',
     'store',
     'carts',
+    'orders',
     
 ]
 
@@ -115,8 +121,10 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
+# If you want to enable translation system or not
 
 USE_TZ = True
+# it will tell django application that will use timezone or not.
 
 
 # Static files (CSS, JavaScript, Images)
@@ -156,8 +164,9 @@ MESSAGE_TAGS = {
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # SMTP Configuration for sending mails
-EMAIL_HOST = 'smtp.gmail.com'
-EMIAL_PORT = 587    # from gmail port=587
-EMAIL_HOST_USER = 'garimasinghgautam28@gmail.com'
-EMAIL_HOST_PASSWORD = 'rpyw zsjh qmvk vkzv'
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
