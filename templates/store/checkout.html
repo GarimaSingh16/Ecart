@@ -135,7 +135,7 @@
                   <div class="card-body">
                     <dl class="dlist-align">
                       <dt>Total price:</dt>
-                      <dd class="text-right">${{total_amount}}</dd>
+                      <dd class="text-right">${{total_price}}</dd>
                     </dl>
                     <dl class="dlist-align">
                       <dt>Tax:</dt>
@@ -144,12 +144,12 @@
                     <dl class="dlist-align">
                       <dt>Total:</dt>
                       <dd class="text-right text-dark b">
-                        <strong>${{total_amount|add:tax}}</strong>
+                        <strong>${{grand_total}}</strong>
                       </dd>
                     </dl>
                     <hr />
                     <p class="text-center mb-3">
-                      <img src="./images/misc/payments.png" height="26" />
+                      <img src='{% static "images/misc/payments.png" %}' height="26" />
                     </p>
                     <button type='submit' class="btn btn-primary btn-block">
                       Place Order

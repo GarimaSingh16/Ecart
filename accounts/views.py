@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 
+from orders.models import Order, OrderProduct
+
 # ++++++++++++++++++++++++++++++++++++++++++ ==================   User Verification/Authentication through mail ================= +++++++++++++++++++++++++++++++++++++++++
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -180,7 +182,8 @@ def logout(request):
 
 @login_required(login_url='login')
 def dashboard(request):
-    return render(request,'accounts/dashboard.html')
+    orders = Order.objects.filter(user=request.user)
+    return render(request,'accounts/dashboard.html',{'orders':orders,})
 
 
 
@@ -247,7 +250,7 @@ def resetpassword_validate(request,uidb64,token):
     
     if user is not None and default_token_generator.check_token(user,token):
         
-        # ✅ Store UID in session
+        #  Store UID in session
         request.session['uid'] = uid
         messages.success(request,'Please reset your password')
         return redirect('resetPassword')

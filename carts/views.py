@@ -52,9 +52,9 @@ def cart(request,total_amount=0,cart_items=None,tax=0):
     
     context={
         'cart_items':cart_items,
-        'total_amount':total_amount,
         'tax':tax,
-        'grand_total':grand_total
+        'grand_total':grand_total,
+        'total_price':total_amount
         }
     return render(request,'store/cart.html',context)
         
@@ -239,8 +239,8 @@ def checkout(request,total_amount=0,cart_items=None,tax=0):
     
     context={
         'cart_items':cart_items,
-        'total_amount':total_amount,
         'tax':tax,
-        'grand_total':grand_total
+        'grand_total':grand_total,
+        'total_price':total_amount
     }
     return render(request,'store/checkout.html',context)

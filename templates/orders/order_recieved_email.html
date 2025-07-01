@@ -1,0 +1,22 @@
+{% autoescape off %}
+
+Hi {{user.first_name}},
+
+YOUR ORDER HAS BEEN RECIEVED
+
+Order will be delivered to {{order.full_name}}
+Order Number : {{order.order_number}}
+{% if order.address_line_2 %}
+Primary Address : {{order.address_line_1}}
+Secondary Address : {{order.address_line_2}}
+{% else %}
+Delivery Address : {{order.address_line_1}}
+{% endif %}
+{{order.city}}, {{order.state}}, {{order.country}} - {{order.pincode}}
+Amount : {{order.sub_total}}
+Tax : {{order.tax}}
+Total Amount : {{order.order_total}}
+
+Thank You
+
+{% endautoescape %}
